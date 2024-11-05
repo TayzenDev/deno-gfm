@@ -8,6 +8,8 @@ import markedFootnote from "marked-footnote";
 import { gfmHeadingId } from "marked-gfm-heading-id";
 import Prism from "prismjs";
 import sanitizeHtml from "sanitize-html";
+import { contentType } from "@std/media-types";
+import * as path from "@std/path";
 import "prismjs-yaml";
 
 import { CSS, KATEX_CLASSES, KATEX_CSS } from "./style.ts";
@@ -26,6 +28,24 @@ Marked.marked.use({
     }
   },
 });
+
+function youtubeLinkToIframe(youtubeUrl: string): string | null {
+  const youtubeRegex =
+    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+  const match = youtubeUrl.match(youtubeRegex);
+
+  if (match) {
+    const videoId = match[1];
+    return `<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/${videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+`;
+  }
+
+  return null;
+}
+
+function isLocalPath(src: string) {
+  return !src.startsWith("http://") && !src.startsWith("https://");
+}
 
 export class Renderer extends Marked.Renderer {
   allowMath: boolean;
@@ -50,6 +70,16 @@ export class Renderer extends Marked.Renderer {
   }
 
   override image(src: string, title: string | null, alt: string): string {
+    const youtubeIframe = youtubeLinkToIframe(src);
+    if (youtubeIframe) {
+      return youtubeIframe;
+    }
+    if (
+      isLocalPath(src) &&
+      (contentType(path.extname(src)) || "").includes("video")
+    ) {
+      return `<video src="${src}" alt="${alt}" title="${title ?? ""}" controls></video>`;
+    }
     return `<img src="${src}" alt="${alt}" title="${title ?? ""}" />`;
   }
 
