@@ -1,6 +1,6 @@
 {
   "name": "@tayzendev/gfm",
-  "version": "0.11.1",
+  "version": "0.11.2",
   "exports": "./mod.ts",
   "imports": {
     "emoji": "jsr:@denosaurs/emoji@^0.3",
