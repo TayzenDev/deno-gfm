@@ -205,7 +205,7 @@ export class Renderer extends Marked.Renderer {
 
     if (task) {
       const icon = checked ? checkedIcon : uncheckedIcon;
-      return `<li><label>${icon}<input type="checkbox" disabled${checked ? " checked" : ""} style="display: none;"> ${text}</label></li>`;
+      return `<li><label>${icon}<input type="checkbox" disabled${checked ? " checked" : ""}> ${text}</label></li>`;
     }
     return super.listitem(text, task, checked);
   }
