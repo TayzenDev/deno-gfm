@@ -31,6 +31,7 @@ export class Renderer extends Marked.Renderer {
   allowMath: boolean;
   baseUrl: string | undefined;
   #slugger: GitHubSlugger;
+  mermaidImport: boolean = false;
 
   constructor(options: Marked.MarkedOptions & RenderOptions = {}) {
     super(options);
@@ -63,23 +64,56 @@ export class Renderer extends Marked.Renderer {
     // a language of `ts, ignore` should really be `ts`
     // and it should be lowercase to ensure it has parity with regular github markdown
     language = language?.split(",")?.[0].toLocaleLowerCase();
+    const isMermaid = language === "mermaid";
 
     // transform math code blocks into HTML+MathML
     // https://github.blog/changelog/2022-06-28-fenced-block-syntax-for-mathematical-expressions/
     if (language === "math" && this.allowMath) {
       return katex.renderToString(code, { displayMode: true });
     }
+    if (isMermaid) {
+      if (!this.mermaidImport) {
+        this.mermaidImport = true;
+        return `<script type="module">
+          import mermaid from "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs";
+          mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+        </script>
+        <style>
+          .mermais-code {
+            display: none;
+          }
+        </style>
+        <noscript>
+          <style>
+            .mermaid { display: none; }
+            .mermaid-code { display: block; }
+          </style>
+        </noscript>`;
+      }
+    }
     const grammar =
       language && Object.hasOwnProperty.call(Prism.languages, language)
         ? Prism.languages[language]
         : undefined;
     if (grammar === undefined) {
+      if (isMermaid) {
+        return `
+          <pre class="mermaid-code notranslate mermaid-code">${he.encode(code)}</pre>
+          <div class="mermaid">code</div>
+        `;
+      }
       return `<pre><code class="notranslate">${he.encode(code)}</code></pre>`;
     }
     const html = Prism.highlight(code, grammar, language!);
     const titleHtml = title
       ? `<div class="markdown-code-title">${title}</div>`
       : ``;
+    if (isMermaid) {
+      return `
+        <div class="highlight highlight-source-${language} notranslate mermaid-code">${titleHtml}<pre>${html}</pre></div>
+        <div class="mermaid">code</div>
+      `;
+    }
     return `<div class="highlight highlight-source-${language} notranslate">${titleHtml}<pre>${html}</pre></div>`;
   }
 
