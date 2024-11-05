@@ -80,7 +80,7 @@ export class Renderer extends Marked.Renderer {
           mermaid.initialize({ startOnLoad: true, theme: "neutral" });
         </script>
         <style>
-          .mermais-code {
+          .mermaid-code {
             display: none;
           }
         </style>
@@ -102,7 +102,7 @@ export class Renderer extends Marked.Renderer {
           additionalCode +
           `
           <pre class="mermaid-code notranslate mermaid-code">${he.encode(code)}</pre>
-          <div class="mermaid">code</div>
+          <div class="mermaid">${code}</div>
         `
         );
       }
@@ -117,7 +117,7 @@ export class Renderer extends Marked.Renderer {
         additionalCode +
         `
         <div class="highlight highlight-source-${language} notranslate mermaid-code">${titleHtml}<pre>${html}</pre></div>
-        <div class="mermaid">code</div>
+        <div class="mermaid">${code}</div>
       `
       );
     }
