@@ -65,6 +65,7 @@ export class Renderer extends Marked.Renderer {
     // and it should be lowercase to ensure it has parity with regular github markdown
     language = language?.split(",")?.[0].toLocaleLowerCase();
     const isMermaid = language === "mermaid";
+    let additionalCode = "";
 
     // transform math code blocks into HTML+MathML
     // https://github.blog/changelog/2022-06-28-fenced-block-syntax-for-mathematical-expressions/
@@ -74,7 +75,7 @@ export class Renderer extends Marked.Renderer {
     if (isMermaid) {
       if (!this.mermaidImport) {
         this.mermaidImport = true;
-        return `<script type="module">
+        additionalCode = `<script type="module">
           import mermaid from "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs";
           mermaid.initialize({ startOnLoad: true, theme: "neutral" });
         </script>
@@ -97,10 +98,13 @@ export class Renderer extends Marked.Renderer {
         : undefined;
     if (grammar === undefined) {
       if (isMermaid) {
-        return `
+        return (
+          additionalCode +
+          `
           <pre class="mermaid-code notranslate mermaid-code">${he.encode(code)}</pre>
           <div class="mermaid">code</div>
-        `;
+        `
+        );
       }
       return `<pre><code class="notranslate">${he.encode(code)}</code></pre>`;
     }
@@ -109,10 +113,13 @@ export class Renderer extends Marked.Renderer {
       ? `<div class="markdown-code-title">${title}</div>`
       : ``;
     if (isMermaid) {
-      return `
+      return (
+        additionalCode +
+        `
         <div class="highlight highlight-source-${language} notranslate mermaid-code">${titleHtml}<pre>${html}</pre></div>
         <div class="mermaid">code</div>
-      `;
+      `
+      );
     }
     return `<div class="highlight highlight-source-${language} notranslate">${titleHtml}<pre>${html}</pre></div>`;
   }
