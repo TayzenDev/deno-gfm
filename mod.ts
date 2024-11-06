@@ -108,16 +108,22 @@ export class Renderer extends Marked.Renderer {
         additionalCode = `<script type="module">
           import mermaid from "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs";
           mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+
+          const mermaidElements = document.querySelectorAll(".mermaid");
+
+          mermaidElements.forEach((el) => {
+            if (el.getAttribute("data-processed") === "true" || el.querySelector("svg")) {
+              // el.style.display = "block";
+              el.nextElementSibling.style.display = "none";
+            }
+          });
         </script>
         <style>
-          .mermaid-code + .mermaid [data-processed="true"] {
-            display: none;
-          }
           .mermaid {
-            display: none;
-          }
-          .mermaid [data-processed="true"] {
             display: block;
+          }
+          .mermaid [data-processed="false"] {
+            display: none;
           }
         </style>`;
       }
@@ -131,8 +137,8 @@ export class Renderer extends Marked.Renderer {
         return (
           additionalCode +
           `
+          <div class="mermaid" data-processed="false">${code}</div>
           <pre class="mermaid-code notranslate">${he.encode(code)}</pre>
-          <div class="mermaid">${code}</div>
         `
         );
       }
@@ -146,8 +152,8 @@ export class Renderer extends Marked.Renderer {
       return (
         additionalCode +
         `
-        <div class="highlight highlight-source-${language} notranslate mermaid-code">${titleHtml}<pre>${html}</pre></div>
         <div class="mermaid">${code}</div>
+        <div class="highlight highlight-source-${language} notranslate mermaid-code">${titleHtml}<pre>${html}</pre></div>
       `
       );
     }
