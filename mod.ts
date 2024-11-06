@@ -108,19 +108,22 @@ export class Renderer extends Marked.Renderer {
         additionalCode = `<script type="module">
           import mermaid from "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs";
           mermaid.initialize({ startOnLoad: false, theme: "neutral" });
+
+          const elements = document.querySelectorAll(".mermaid-container");
+          elements.forEach((element) => {
+            const code = element.querySelector(".mermaid-code")?.textContent || "";
+            if (code) {
+              element.innerHTML = \`<div class="mermaid">\${code}</div>\`;
+            }
+          });
+
           await mermaid.run();
         </script>
         <style>
           .mermaid-code {
             display: none;
           }
-        </style>
-        <noscript>
-          <style>
-            .mermaid { display: none; }
-            .mermaid-code { display: block; }
-          </style>
-        </noscript>`;
+        </style>`;
       }
     }
     const grammar =
@@ -132,8 +135,9 @@ export class Renderer extends Marked.Renderer {
         return (
           additionalCode +
           `
-          <pre class="mermaid-code notranslate mermaid-code">${he.encode(code)}</pre>
-          <div class="mermaid">${code}</div>
+          <div class="mermaid-container">
+            <pre class="mermaid-code notranslate">${he.encode(code)}</pre>
+          </div>
         `
         );
       }
@@ -147,9 +151,11 @@ export class Renderer extends Marked.Renderer {
       return (
         additionalCode +
         `
-        <div class="highlight highlight-source-${language} notranslate mermaid-code">${titleHtml}<pre>${html}</pre></div>
-        <div class="mermaid">${code}</div>
-      `
+        <div class="mermaid-container">
+          <div class="highlight highlight-source-${language} notranslate mermaid-code">${titleHtml}<pre>${html}</pre></div>
+          <div class="mermaid-code">${code}</div>
+        </div>
+        `
       );
     }
     return `<div class="highlight highlight-source-${language} notranslate">${titleHtml}<pre>${html}</pre></div>`;
