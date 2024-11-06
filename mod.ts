@@ -108,14 +108,19 @@ export class Renderer extends Marked.Renderer {
         additionalCode = `<script type="module">
           import mermaid from "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs";
           mermaid.initialize({ startOnLoad: false, theme: "neutral" });
-
-          // const mermaidElements = document.querySelectorAll(".mermaid");
-          // mermaidElements.forEach((el) => {
-          //   el.style.display = "block";
-          // });
-
           await mermaid.run();
-        </script>`;
+        </script>
+        <style>
+          .mermaid-code {
+            display: none;
+          }
+        </style>
+        <noscript>
+          <style>
+            .mermaid { display: none; }
+            .mermaid-code { display: block; }
+          </style>
+        </noscript>`;
       }
     }
     const grammar =
@@ -127,10 +132,8 @@ export class Renderer extends Marked.Renderer {
         return (
           additionalCode +
           `
-          // <div class="mermaid-container">
-          //   <div class="mermaid" data-processed="false">${code}</div>
-            <pre class="mermaid notranslate">${he.encode(code)}</pre>
-          // </div>
+          <pre class="mermaid-code notranslate mermaid-code">${he.encode(code)}</pre>
+          <div class="mermaid">${code}</div>
         `
         );
       }
@@ -144,11 +147,9 @@ export class Renderer extends Marked.Renderer {
       return (
         additionalCode +
         `
-        // <div class="mermaid-container">
-        //   <div class="mermaid" data-processed="false">${code}</div>
-          <div class="highlight highlight-source-${language} notranslate mermaid">${titleHtml}<pre>${html}</pre></div>
-        // </div>
-        `
+        <div class="highlight highlight-source-${language} notranslate mermaid-code">${titleHtml}<pre>${html}</pre></div>
+        <div class="mermaid">${code}</div>
+      `
       );
     }
     return `<div class="highlight highlight-source-${language} notranslate">${titleHtml}<pre>${html}</pre></div>`;
