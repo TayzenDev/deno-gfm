@@ -105,21 +105,23 @@ export class Renderer extends Marked.Renderer {
     if (isMermaid) {
       if (!this.mermaidImport) {
         this.mermaidImport = true;
-        additionalCode = `<script type="module">
-          import mermaid from "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs";
-          mermaid.initialize({ startOnLoad: true, theme: "neutral" });
-        </script>
-        <style>
-          .mermaid-code {
-            display: none;
-          }
-        </style>
-        <noscript>
+        additionalCode = `<noscript>
           <style>
             .mermaid { display: none; }
             .mermaid-code { display: block; }
           </style>
-        </noscript>`;
+        </noscript>
+        <script type="module">
+          import mermaid from "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs";
+          mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+          const style = document.createElement('style');
+          style.textContent = \`
+            .mermaid-code {
+              display: none;
+            }
+          \`;
+          document.head.appendChild(style);
+        </script>`;
       }
     }
     const grammar =
