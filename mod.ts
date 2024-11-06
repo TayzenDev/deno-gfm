@@ -136,7 +136,8 @@ export class Renderer extends Marked.Renderer {
           additionalCode +
           `
           <div class="mermaid-container">
-            <pre class="mermaid-code notranslate">${he.encode(code)}</pre>
+            <pre class="notranslate">${he.encode(code)}</pre>
+            <div class="mermaid-code">${code}</div>
           </div>
         `
         );
@@ -152,7 +153,7 @@ export class Renderer extends Marked.Renderer {
         additionalCode +
         `
         <div class="mermaid-container">
-          <div class="highlight highlight-source-${language} notranslate mermaid-code">${titleHtml}<pre>${html}</pre></div>
+          <div class="highlight highlight-source-${language} notranslate">${titleHtml}<pre>${html}</pre></div>
           <div class="mermaid-code">${code}</div>
         </div>
         `
