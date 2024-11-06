@@ -110,22 +110,25 @@ export class Renderer extends Marked.Renderer {
           mermaid.initialize({ startOnLoad: false, theme: "neutral" });
           await mermaid.run();
 
-          // document.addEventListener("DOMContentLoaded", function () {
-          const mermaidElements = document.querySelectorAll(".mermaid");
-          mermaidElements.forEach((el) => {
-            if (el.getAttribute("data-processed") === "true" || el.querySelector("svg")) {
-              // el.style.display = "block";
-              el.nextElementSibling.style.display = "none";
-            }
-          });
+          // const mermaidElements = document.querySelectorAll(".mermaid");
+          // mermaidElements.forEach((el) => {
+          //   if (el.getAttribute("data-processed") === "true" || el.querySelector("svg")) {
+          //     el.nextElementSibling.style.display = "none";
+          //   }
           // });
         </script>
         <style>
-          .mermaid {
+          .mermaid-container .mermaid {
             display: block;
           }
-          .mermaid [data-processed="false"] {
+          .mermaid-container .mermaid-code {
             display: none;
+          }
+          .mermaid-container:has(.mermaid [data-processed="false"]) .mermaid {
+            display: none;
+          }
+          .mermaid-container:has(.mermaid [data-processed="false"]) .mermaid-code {
+            display: block;
           }
         </style>`;
       }
@@ -139,8 +142,10 @@ export class Renderer extends Marked.Renderer {
         return (
           additionalCode +
           `
-          <div class="mermaid" data-processed="false">${code}</div>
-          <pre class="mermaid-code notranslate">${he.encode(code)}</pre>
+          <div class="mermaid-container">
+            <div class="mermaid" data-processed="false">${code}</div>
+            <pre class="mermaid-code notranslate">${he.encode(code)}</pre>
+          </div>
         `
         );
       }
@@ -154,9 +159,11 @@ export class Renderer extends Marked.Renderer {
       return (
         additionalCode +
         `
-        <div class="mermaid">${code}</div>
-        <div class="highlight highlight-source-${language} notranslate mermaid-code">${titleHtml}<pre>${html}</pre></div>
-      `
+        <div class="mermaid-container">
+          <div class="mermaid" data-processed="false">${code}</div>
+          <div class="highlight highlight-source-${language} notranslate mermaid-code">${titleHtml}<pre>${html}</pre></div>
+        </div>
+        `
       );
     }
     return `<div class="highlight highlight-source-${language} notranslate">${titleHtml}<pre>${html}</pre></div>`;
