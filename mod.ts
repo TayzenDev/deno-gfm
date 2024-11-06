@@ -106,24 +106,20 @@ export class Renderer extends Marked.Renderer {
       if (!this.mermaidImport) {
         this.mermaidImport = true;
         additionalCode = `<script type="module">
-          document.addEventListener("DOMContentLoaded", () => {
-            const noscriptStyles = document.querySelectorAll("noscript style");
-            noscriptStyles.forEach(style => style.parentNode.removeChild(style));
-            import mermaid from "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs";
-            mermaid.initialize({ startOnLoad: true, theme: "neutral" });
-          });
+          import mermaid from "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs";
+          mermaid.initialize({ startOnLoad: true, theme: "neutral" });
         </script>
         <style>
-          .mermaid-code {
+          .mermaid-code + .mermaid [data-processed="true"] {
             display: none;
           }
-        </style>
-        <noscript>
-          <style>
-            .mermaid { display: none; }
-            .mermaid-code { display: block; }
-          </style>
-        </noscript>`;
+          .mermaid {
+            display: none;
+          }
+          .mermaid [data-processed="true"] {
+            display: block;
+          }
+        </style>`;
       }
     }
     const grammar =
@@ -135,7 +131,7 @@ export class Renderer extends Marked.Renderer {
         return (
           additionalCode +
           `
-          <pre class="mermaid-code notranslate mermaid-code">${he.encode(code)}</pre>
+          <pre class="mermaid-code notranslate">${he.encode(code)}</pre>
           <div class="mermaid">${code}</div>
         `
         );
