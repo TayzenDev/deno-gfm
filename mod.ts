@@ -107,16 +107,18 @@ export class Renderer extends Marked.Renderer {
         this.mermaidImport = true;
         additionalCode = `<script type="module">
           import mermaid from "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs";
-          mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+          mermaid.initialize({ startOnLoad: false, theme: "neutral" });
+          await mermaid.run();
 
+          // document.addEventListener("DOMContentLoaded", function () {
           const mermaidElements = document.querySelectorAll(".mermaid");
-
           mermaidElements.forEach((el) => {
             if (el.getAttribute("data-processed") === "true" || el.querySelector("svg")) {
               // el.style.display = "block";
               el.nextElementSibling.style.display = "none";
             }
           });
+          // });
         </script>
         <style>
           .mermaid {
