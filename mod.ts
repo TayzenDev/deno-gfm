@@ -109,27 +109,13 @@ export class Renderer extends Marked.Renderer {
           import mermaid from "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs";
           mermaid.initialize({ startOnLoad: false, theme: "neutral" });
 
-          const mermaidElements = document.querySelectorAll(".mermaid");
-          mermaidElements.forEach((el) => {
-            el.style.display = "block";
-          });
+          // const mermaidElements = document.querySelectorAll(".mermaid");
+          // mermaidElements.forEach((el) => {
+          //   el.style.display = "block";
+          // });
 
           await mermaid.run();
-        </script>
-        <style>
-          .mermaid-container .mermaid {
-            display: block;
-          }
-          .mermaid-container .mermaid-code {
-            display: none;
-          }
-          .mermaid-container:has(.mermaid[data-processed="false"]) .mermaid {
-            display: none;
-          }
-          .mermaid-container:has(.mermaid[data-processed="false"]) .mermaid-code {
-            display: block;
-          }
-        </style>`;
+        </script>`;
       }
     }
     const grammar =
@@ -141,10 +127,10 @@ export class Renderer extends Marked.Renderer {
         return (
           additionalCode +
           `
-          <div class="mermaid-container">
-            <div class="mermaid" data-processed="false">${code}</div>
-            <pre class="mermaid-code notranslate">${he.encode(code)}</pre>
-          </div>
+          // <div class="mermaid-container">
+          //   <div class="mermaid" data-processed="false">${code}</div>
+            <pre class="mermaid notranslate">${he.encode(code)}</pre>
+          // </div>
         `
         );
       }
@@ -158,10 +144,10 @@ export class Renderer extends Marked.Renderer {
       return (
         additionalCode +
         `
-        <div class="mermaid-container">
-          <div class="mermaid" data-processed="false">${code}</div>
-          <div class="highlight highlight-source-${language} notranslate mermaid-code">${titleHtml}<pre>${html}</pre></div>
-        </div>
+        // <div class="mermaid-container">
+        //   <div class="mermaid" data-processed="false">${code}</div>
+          <div class="highlight highlight-source-${language} notranslate mermaid">${titleHtml}<pre>${html}</pre></div>
+        // </div>
         `
       );
     }
