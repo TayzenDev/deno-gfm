@@ -124,10 +124,10 @@ export class Renderer extends Marked.Renderer {
           .mermaid-container .mermaid-code {
             display: none;
           }
-          .mermaid-container:has(.mermaid [data-processed="false"]) .mermaid {
+          .mermaid-container:has(.mermaid[data-processed="false"]) .mermaid {
             display: none;
           }
-          .mermaid-container:has(.mermaid [data-processed="false"]) .mermaid-code {
+          .mermaid-container:has(.mermaid[data-processed="false"]) .mermaid-code {
             display: block;
           }
         </style>`;
