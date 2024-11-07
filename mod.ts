@@ -169,7 +169,7 @@ export class Renderer extends Marked.Renderer {
 
   override link(href: string, title: string | null, text: string): string {
     if (this.noLinks) {
-      return `<p>${text}</p>`;
+      return text;
     }
     const titleAttr = title ? ` title="${title}"` : "";
     if (href.startsWith("#")) {
