@@ -83,7 +83,7 @@ export class Renderer extends Marked.Renderer {
       isLocalPath(src) &&
       (contentType(path.extname(src)) || "").includes("video")
     ) {
-      return `<video src="${src}" alt="${alt}" title="${title ?? ""}" controls></video>`;
+      return `<video src="${src}" alt="${alt}" title="${title ?? ""}" controls />`;
     }
     return `<img src="${src}" alt="${alt}" title="${title ?? ""}" />`;
   }
@@ -190,18 +190,39 @@ export class Renderer extends Marked.Renderer {
 
     if (task) {
       const icon = checked ? checkedIcon : uncheckedIcon;
-      return `<li style="list-style-type: none;"><label>${icon} ${text}</label></li>`;
+      return (
+        minify(
+          `<li style="list-style-type: none;"><label>${icon} ${text}</label></li>`,
+        ) + "\n"
+      );
     }
     return super.listitem(text, task, checked);
   }
 
   override checkbox(checked: boolean): string {
-    return `<input type="checkbox" disabled${checked ? " checked" : ""} style="display: none;">`;
+    return `<input ${checked ? "checked " : ""}disabled type="checkbox" style="display: none;">`;
   }
 }
 
 function minify(str: string): string {
-  return str.replace(/^\s+|\s+$|\n/gm, "");
+  return (
+    str
+      .replace(/>\s+</g, "><")
+      .replace(/<(\w+)(\s*\n\s*|\s{2,})/g, "<$1 ")
+      .replace(/\s*=\s*/g, "=")
+      .replace(/\s*({|}|;|\(|\)|,|:)\s*/g, "$1")
+      .replace(
+        /(<style.*?>)([\s\S]*?)(<\/style>)/g,
+        (_, start, content, end) =>
+          `${start}${content.replace(/^\s+|\s+$/gm, "").replace(/\s*\n\s*/g, " ")}${end}`,
+      )
+      .replace(
+        /(<script.*?>)([\s\S]*?)(<\/script>)/g,
+        (_, start, content, end) =>
+          `${start}${content.replace(/^\s+|\s+$/gm, "").replace(/\s*\n\s*/g, " ")}${end}`,
+      )
+      .trim()
+  );
 }
 
 const BLOCK_MATH_REGEXP = /\$\$\s(.+?)\s\$\$/g;
