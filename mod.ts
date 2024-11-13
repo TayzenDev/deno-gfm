@@ -100,7 +100,6 @@ export class Renderer extends Marked.Renderer {
     // and it should be lowercase to ensure it has parity with regular github markdown
     language = language?.split(",")?.[0].toLocaleLowerCase();
     const isMermaid = language === "mermaid";
-    let additionalCode = "";
 
     // transform math code blocks into HTML+MathML
     // https://github.blog/changelog/2022-06-28-fenced-block-syntax-for-mathematical-expressions/
@@ -108,28 +107,7 @@ export class Renderer extends Marked.Renderer {
       return katex.renderToString(code, { displayMode: true });
     }
     if (isMermaid) {
-      if (!this.mermaidImport) {
-        this.mermaidImport = true;
-        additionalCode = `<script type="module">
-          import mermaid from "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs";
-          mermaid.initialize({ startOnLoad: false, theme: "neutral" });
-
-          const elements = document.querySelectorAll(".mermaid-container");
-          elements.forEach((element) => {
-            const code = element.querySelector(".mermaid-code")?.textContent || "";
-            if (code) {
-              element.innerHTML = \`<div class="mermaid">\${code}</div>\`;
-            }
-          });
-
-          await mermaid.run();
-        </script>
-        <style>
-          .mermaid-code {
-            display: none;
-          }
-        </style>`;
-      }
+      this.mermaidImport = true;
     }
     const grammar =
       language && Object.hasOwnProperty.call(Prism.languages, language)
@@ -137,15 +115,10 @@ export class Renderer extends Marked.Renderer {
         : undefined;
     if (grammar === undefined) {
       if (isMermaid) {
-        return (
-          additionalCode +
-          `
-          <div class="mermaid-container">
-            <pre class="notranslate">${he.encode(code)}</pre>
+        return minify(`<div class="mermaid-container">
+            <pre><code class="notranslate">${code}</code></pre>
             <div class="mermaid-code">${code}</div>
-          </div>
-        `
-        );
+          </div>`);
       }
       return `<pre><code class="notranslate">${he.encode(code)}</code></pre>`;
     }
@@ -154,15 +127,11 @@ export class Renderer extends Marked.Renderer {
       ? `<div class="markdown-code-title">${title}</div>`
       : ``;
     if (isMermaid) {
-      return (
-        additionalCode +
-        `
+      return minify(`
         <div class="mermaid-container">
           <div class="highlight highlight-source-${language} notranslate">${titleHtml}<pre>${html}</pre></div>
           <div class="mermaid-code">${code}</div>
-        </div>
-        `
-      );
+        </div>`);
     }
     return `<div class="highlight highlight-source-${language} notranslate">${titleHtml}<pre>${html}</pre></div>`;
   }
@@ -229,6 +198,10 @@ export class Renderer extends Marked.Renderer {
   override checkbox(checked: boolean): string {
     return `<input type="checkbox" disabled${checked ? " checked" : ""} style="display: none;">`;
   }
+}
+
+function minify(str: string): string {
+  return str.replace(/^\s+|\s+$|\n/gm, "");
 }
 
 const BLOCK_MATH_REGEXP = /\$\$\s(.+?)\s\$\$/g;
@@ -302,8 +275,33 @@ export function render(markdown: string, opts: RenderOptions = {}): string {
       : Marked.marked.parse(markdown, marked_opts)
   ) as string;
 
+  let additionalCode = "";
+  if (marked_opts.renderer.mermaidImport) {
+    additionalCode = minify(`
+      <script type="module">
+        import mermaid from "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs";
+        mermaid.initialize({ startOnLoad: false, theme: "neutral" });
+
+        const elements = document.querySelectorAll(".mermaid-container");
+        elements.forEach((element) => {
+          const code = element.querySelector(".mermaid-code")?.textContent || "";
+          if (code) {
+            element.innerHTML = \`<div class="mermaid">\${code}</div>\`;
+          }
+        });
+
+        await mermaid.run();
+      </script>
+      <style>
+        .mermaid-code {
+          display: none;
+        }
+      </style>
+    `);
+  }
+
   if (opts.disableHtmlSanitization) {
-    return html;
+    return additionalCode + html;
   }
 
   let defaultAllowedTags = sanitizeHtml.defaults.allowedTags.concat([
@@ -376,6 +374,8 @@ export function render(markdown: string, opts: RenderOptions = {}): string {
       "markdown-alert",
       "markdown-alert-*",
       "markdown-code-title",
+      "mermaid-code",
+      "mermaid-container",
     ],
     span: [
       "token",
@@ -467,22 +467,25 @@ export function render(markdown: string, opts: RenderOptions = {}): string {
     ],
   };
 
-  return sanitizeHtml(html, {
-    transformTags: {
-      img: transformMedia,
-      video: transformMedia,
-    },
-    allowedTags: [...defaultAllowedTags, ...(opts.allowedTags ?? [])],
-    allowedAttributes: mergeAttributes(
-      defaultAllowedAttributes,
-      opts.allowedAttributes ?? {},
-    ),
-    allowedClasses: { ...defaultAllowedClasses, ...opts.allowedClasses },
-    allowProtocolRelative: false,
-    parser: {
-      lowerCaseAttributeNames: false,
-    },
-  });
+  return (
+    additionalCode +
+    sanitizeHtml(html, {
+      transformTags: {
+        img: transformMedia,
+        video: transformMedia,
+      },
+      allowedTags: [...defaultAllowedTags, ...(opts.allowedTags ?? [])],
+      allowedAttributes: mergeAttributes(
+        defaultAllowedAttributes,
+        opts.allowedAttributes ?? {},
+      ),
+      allowedClasses: { ...defaultAllowedClasses, ...opts.allowedClasses },
+      allowProtocolRelative: false,
+      parser: {
+        lowerCaseAttributeNames: false,
+      },
+    })
+  );
 }
 
 function mergeAttributes(
