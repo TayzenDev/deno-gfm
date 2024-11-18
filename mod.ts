@@ -334,8 +334,8 @@ export function render(markdown: string, opts: RenderOptions = {}): string {
     `);
   }
   if (marked_opts.renderer.lightYTEmbedImport) {
-    additionalCode += `<script src="https://cdn.jsdelivr.net/gh/paulirish/lite-youtube-embed@498a4f322a63265895bfa9300677fe06342d51b7/src/lite-yt-embed.js" />`;
-    additionalCode += `<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/paulirish/lite-youtube-embed@571be5d0c015c51ed5e4a3005d2e089eb1286574/src/lite-yt-embed.css" />`;
+    additionalCode += `<script src="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.3.3/src/lite-yt-embed.min.js" />`;
+    additionalCode += `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.3.3/src/lite-yt-embed.min.css" />`;
   }
 
   if (opts.disableHtmlSanitization) {
