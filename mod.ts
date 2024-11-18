@@ -42,7 +42,7 @@ function youtubeLinkToIframe(youtubeUrl: string, lite: boolean = false, title?: 
       return `<lite-youtube class="js-only youtube-embed" videoid="${videoId}" title="${actualTitle}"></lite-youtube>
       <a href="https://youtube.com/watch?v=${videoId}" class="lite-youtube-placeholder" title="${actualTitle}">
         <div class="youtube-embed" style="background-image: url('https://i.ytimg.com/vi/${videoId}/hqdefault.jpg');">
-          <div class="play-button" style="display: flex; justify-content: center; align-items: center;">
+          <div class="play-button" style="display: flex; justify-content: center; align-items: center; height: 100%;">
             ${playButton}
           </div>
         </div>
