@@ -333,9 +333,9 @@ export function render(markdown: string, opts: RenderOptions = {}): string {
       </style>
     `);
   }
-  if (marked_opts.renderer.liteYTEmbed) {
-    additionalCode += `<script src="https://raw.githubusercontent.com/paulirish/lite-youtube-embed/571be5d0c015c51ed5e4a3005d2e089eb1286574/src/lite-yt-embed.js" />`;
-    additionalCode += `<link rel="stylesheet" href="https://github.com/paulirish/lite-youtube-embed/blob/498a4f322a63265895bfa9300677fe06342d51b7/src/lite-yt-embed.css" />`;
+  if (marked_opts.renderer.lightYTEmbedImport) {
+    additionalCode += `<script src="https://cdn.jsdelivr.net/gh/paulirish/lite-youtube-embed@498a4f322a63265895bfa9300677fe06342d51b7/src/lite-yt-embed.js" />`;
+    additionalCode += `<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/paulirish/lite-youtube-embed@571be5d0c015c51ed5e4a3005d2e089eb1286574/src/lite-yt-embed.css" />`;
   }
 
   if (opts.disableHtmlSanitization) {
