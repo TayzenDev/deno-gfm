@@ -346,7 +346,6 @@ export function render(markdown: string, opts: RenderOptions = {}): string {
         const ytContainers = document.querySelectorAll('.youtube-container');
         ytContainers.forEach((container) => {
           console.log(container);
-          element.style.display = 'none';
           const videoId = container.dataset.videoId;
           const videoTitle = container.dataset.videoTitle;
           container.innerHTML = \`<lite-youtube class="js-only youtube-embed" videoid="\${videoId}" title="\${videoTitle}"></lite-youtube>\`
