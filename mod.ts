@@ -39,7 +39,8 @@ function youtubeLinkToIframe(youtubeUrl: string, lite: boolean = false, title?: 
     const actualTitle = title ?? "Youtube Player";
     if (lite) {
       const playButton = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play"><polygon points="6 3 20 12 6 21 6 3"/></svg>`
-      return `<div class="youtube-container" data-video-id="${videoId}" data-video-title="${actualTitle}">
+      return `<lite-youtube class="youtube-embed" videoid="\${videoId}" title="\${videoTitle}">
+        <!-- <div class="youtube-container" data-video-id="${videoId}" data-video-title="${actualTitle}"> -->
         <a href="https://youtube.com/watch?v=${videoId}" class="lite-youtube-placeholder" title="${actualTitle}">
           <div class="youtube-embed" style="background-image: url('https://i.ytimg.com/vi/${videoId}/hqdefault.jpg');">
             <div class="play-button" style="display: flex; justify-content: center; align-items: center; height: 100%;">
@@ -47,7 +48,8 @@ function youtubeLinkToIframe(youtubeUrl: string, lite: boolean = false, title?: 
             </div>
           </div>
         </a>
-        </div>`
+        <!-- </div> -->       
+      </lite-youtube>`
     }
     return `<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/${videoId}" class="youtube-embed" title="${actualTitle}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe>
 `;
@@ -339,19 +341,19 @@ export function render(markdown: string, opts: RenderOptions = {}): string {
     `);
   }
   if (marked_opts.renderer.lightYTEmbedImport) {
-    additionalCode += `<script src="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.3.3/src/lite-yt-embed.min.js"></script>`;
-    additionalCode += `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.3.3/src/lite-yt-embed.min.css" />`;
-    additionalCode += `<script type="module">
-      document.addEventListener('DOMContentLoaded', () => {
-        const ytContainers = document.querySelectorAll('.youtube-container');
-        ytContainers.forEach((container) => {
-          console.log(container);
-          const videoId = container.dataset.videoId;
-          const videoTitle = container.dataset.videoTitle;
-          container.innerHTML = \`<lite-youtube class="js-only youtube-embed" videoid="\${videoId}" title="\${videoTitle}"></lite-youtube>\`
-        });
-      })
-    </script>`
+    additionalCode += `<script src="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.3.3/src/lite-yt-embed.js"></script>`;
+    additionalCode += `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.3.3/src/lite-yt-embed.css" />`;
+    // additionalCode += `<script type="module">
+    //   document.addEventListener('DOMContentLoaded', () => {
+    //     const ytContainers = document.querySelectorAll('.youtube-container');
+    //     ytContainers.forEach((container) => {
+    //       console.log(container);
+    //       const videoId = container.dataset.videoId;
+    //       const videoTitle = container.dataset.videoTitle;
+    //       container.innerHTML = \`<lite-youtube class="youtube-embed" videoid="\${videoId}" title="\${videoTitle}"></lite-youtube>\`
+    //     });
+    //   })
+    // </script>`
 
   }
 
