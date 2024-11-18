@@ -342,7 +342,7 @@ export function render(markdown: string, opts: RenderOptions = {}): string {
   if (marked_opts.renderer.lightYTEmbedImport) {
     additionalCode += `<script src="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.3.3/src/lite-yt-embed.min.js"></script>`;
     additionalCode += `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.3.3/src/lite-yt-embed.min.css" />`;
-    additionalCode += `<script type="module">
+    additionalCode += `<script>
       document.addEventListener('DOMContentLoaded', () => {
         const elements = document.querySelectorAll('.lite-youtube-placeholder');
         elements.forEach((element) => {
