@@ -38,9 +38,9 @@ function youtubeLinkToIframe(youtubeUrl: string, lite: boolean = false, title?: 
     const videoId = match[1];
     const actualTitle = title ?? "Youtube Player";
     if (lite) {
-      return `<lite-youtube class="js-only" videoid="${videoId}" title="${actualTitle}"></lite-youtube>
+      return `<lite-youtube class="js-only youtube-embed" videoid="${videoId}" title="${actualTitle}"></lite-youtube>
       <noscript>
-      <div class="lite-youtube-placeholder" style="background-image: url('https://i.ytimg.com/vi/${videoId}/hqdefault.jpg');">
+      <div class="lite-youtube-placeholder youtube-embed" style="background-image: url('https://i.ytimg.com/vi/${videoId}/hqdefault.jpg');">
         <a href="https://youtube.com/watch?v=${videoId}" class="lty-playbtn" title="${actualTitle}">
           <span class="lyt-visually-hidden">${actualTitle}</span>
         </a>
@@ -53,7 +53,7 @@ function youtubeLinkToIframe(youtubeUrl: string, lite: boolean = false, title?: 
       </noscript>
       `
     }
-    return `<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/${videoId}" title="${actualTitle}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe>
+    return `<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/${videoId}" class="youtube-embed" title="${actualTitle}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe>
 `;
   }
 
