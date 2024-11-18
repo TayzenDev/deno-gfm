@@ -29,14 +29,22 @@ Marked.marked.use({
   },
 });
 
-function youtubeLinkToIframe(youtubeUrl: string): string | null {
+function youtubeLinkToIframe(youtubeUrl: string, lite: boolean = false, title?: string): string | null {
   const youtubeRegex =
     /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
   const match = youtubeUrl.match(youtubeRegex);
 
   if (match) {
     const videoId = match[1];
-    return `<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/${videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe>
+    const actualTitle = title ?? "Youtube Player";
+    if (lite) {
+      return `<lite-youtube videoid="${videoId}" style="background-image: url('https://i.ytimg.com/vi/${videoId}/hqdefault.jpg');">
+        <a href="https://youtube.com/watch?v=${videoId}" class="lty-playbtn" title="${actualTitle}">
+          <span class="lyt-visually-hidden">${actualTitle}</span>
+        </a>
+      </lite-youtube>`;
+    }
+    return `<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/${videoId}" title="${actualTitle}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe>
 `;
   }
 
@@ -50,15 +58,18 @@ function isLocalPath(src: string) {
 export class Renderer extends Marked.Renderer {
   allowMath: boolean;
   noLinks: boolean;
+  liteYTEmbed: boolean = false;
   baseUrl: string | undefined;
   #slugger: GitHubSlugger;
   mermaidImport: boolean = false;
+  lightYTEmbedImport: boolean = false;
 
   constructor(options: Marked.MarkedOptions & RenderOptions = {}) {
     super(options);
     this.baseUrl = options.baseUrl;
     this.allowMath = options.allowMath ?? false;
     this.noLinks = options.noLinks ?? false;
+    this.liteYTEmbed = options.liteYTEmbed ?? false;
     this.#slugger = new GitHubSlugger();
   }
 
@@ -75,8 +86,9 @@ export class Renderer extends Marked.Renderer {
   }
 
   override image(src: string, title: string | null, alt: string): string {
-    const youtubeIframe = youtubeLinkToIframe(src);
+    const youtubeIframe = youtubeLinkToIframe(src, this.liteYTEmbed, title || alt);
     if (youtubeIframe) {
+      this.lightYTEmbedImport = this.liteYTEmbed;
       return youtubeIframe;
     }
     if (
@@ -279,6 +291,7 @@ export interface RenderOptions {
   allowedAttributes?: Record<string, sanitizeHtml.AllowedAttribute[]>;
   breaks?: boolean;
   noLinks?: boolean;
+  liteYTEmbed?: boolean;
 }
 
 export function render(markdown: string, opts: RenderOptions = {}): string {
@@ -298,7 +311,7 @@ export function render(markdown: string, opts: RenderOptions = {}): string {
 
   let additionalCode = "";
   if (marked_opts.renderer.mermaidImport) {
-    additionalCode = minify(`
+    additionalCode += minify(`
       <script type="module">
         import mermaid from "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs";
         mermaid.initialize({ startOnLoad: false, theme: "neutral" });
@@ -319,6 +332,10 @@ export function render(markdown: string, opts: RenderOptions = {}): string {
         }
       </style>
     `);
+  }
+  if (marked_opts.renderer.liteYTEmbed) {
+    additionalCode += `<script src="https://raw.githubusercontent.com/paulirish/lite-youtube-embed/571be5d0c015c51ed5e4a3005d2e089eb1286574/src/lite-yt-embed.js" />`;
+    additionalCode += `<link rel="stylesheet" href="https://github.com/paulirish/lite-youtube-embed/blob/498a4f322a63265895bfa9300677fe06342d51b7/src/lite-yt-embed.css" />`;
   }
 
   if (opts.disableHtmlSanitization) {
