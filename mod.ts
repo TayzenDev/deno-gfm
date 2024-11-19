@@ -38,7 +38,6 @@ function youtubeLinkToIframe(youtubeUrl: string, lite: boolean = false, title?: 
     const videoId = match[1];
     const actualTitle = title ?? "Youtube Player";
     if (lite) {
-      const playButton = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play"><polygon points="6 3 20 12 6 21 6 3"/></svg>`
       return `<lite-youtube class="youtube-embed" videoid="${videoId}" title="${actualTitle}">
         <a
           href="https://youtube.com/watch?v=${videoId}"
@@ -46,14 +45,17 @@ function youtubeLinkToIframe(youtubeUrl: string, lite: boolean = false, title?: 
           style="
             width: 100%;
             height: 100%;
-            display: block;
-            background-image: url('https://i.ytimg.com/vi/swXWUfufu2w/hqdefault.jpg');
+            display: flex;
+            background-image: url('https://i.ytimg.com/vi/${videoId}/hqdefault.jpg');
+            justify-content: center;
+            align-items: center;
+            font-size: 50px;
+            color: white;
+            text-decoration: none;
           "
           class="lite-youtube-placeholder youtube-embed"
         >
-          <div class="play-button" style="display: flex; justify-content: center; align-items: center; height: 100%;">
-            ${playButton}
-          </div>
+          ▶
         </a>
       </lite-youtube>`
     }
