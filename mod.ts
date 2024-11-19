@@ -38,7 +38,7 @@ function youtubeLinkToIframe(youtubeUrl: string, lite: boolean = false, title?: 
     const videoId = match[1];
     const actualTitle = title ?? "Youtube Player";
     if (lite) {
-      return `<lite-youtube videoid="${videoId}" style="background-image: url('https://i.ytimg.com/vi/${videoId}/hqdefault.jpg');">
+      return `<lite-youtube class="youtube-embed" videoid="${videoId}" title="${actualTitle}" style="background-image: url('https://i.ytimg.com/vi/${videoId}/hqdefault.jpg');">
         <a href="https://youtube.com/watch?v=${videoId}" class="lty-playbtn" title="${actualTitle}">
           <span class="lyt-visually-hidden">${actualTitle}</span>
         </a>
