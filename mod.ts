@@ -38,24 +38,9 @@ function youtubeLinkToIframe(youtubeUrl: string, lite: boolean = false, title?: 
     const videoId = match[1];
     const actualTitle = title ?? "Youtube Player";
     if (lite) {
-      return `<lite-youtube class="youtube-embed" videoid="${videoId}" title="${actualTitle}">
-        <a
-          href="https://youtube.com/watch?v=${videoId}"
-          title="${actualTitle}"
-          style="
-            width: 100%;
-            height: 100%;
-            display: flex;
-            background-image: url('https://i.ytimg.com/vi/${videoId}/hqdefault.jpg');
-            justify-content: center;
-            align-items: center;
-            font-size: 50px;
-            color: white;
-            text-decoration: none;
-          "
-          class="lite-youtube-placeholder youtube-embed"
-        >
-          ▶
+      return `<lite-youtube videoid="${videoId}" style="background-image: url('https://i.ytimg.com/vi/${videoId}/hqdefault.jpg');">
+        <a href="https://youtube.com/watch?v=${videoId}" class="lty-playbtn" title="${actualTitle}">
+          <span class="lyt-visually-hidden">${actualTitle}</span>
         </a>
       </lite-youtube>`
     }
