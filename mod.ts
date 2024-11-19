@@ -349,20 +349,8 @@ export function render(markdown: string, opts: RenderOptions = {}): string {
     `);
   }
   if (marked_opts.renderer.lightYTEmbedImport) {
-    additionalCode += `<script src="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.3.3/src/lite-yt-embed.js"></script>`;
+    additionalCode += `<script type="module" src="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.3.3/src/lite-yt-embed.js"></script>`;
     additionalCode += `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.3.3/src/lite-yt-embed.css" />`;
-    // additionalCode += `<script type="module">
-    //   document.addEventListener('DOMContentLoaded', () => {
-    //     const ytContainers = document.querySelectorAll('.youtube-container');
-    //     ytContainers.forEach((container) => {
-    //       console.log(container);
-    //       const videoId = container.dataset.videoId;
-    //       const videoTitle = container.dataset.videoTitle;
-    //       container.innerHTML = \`<lite-youtube class="youtube-embed" videoid="\${videoId}" title="\${videoTitle}"></lite-youtube>\`
-    //     });
-    //   })
-    // </script>`
-
   }
 
   if (opts.disableHtmlSanitization) {
