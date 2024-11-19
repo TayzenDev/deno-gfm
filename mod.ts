@@ -349,7 +349,7 @@ export function render(markdown: string, opts: RenderOptions = {}): string {
     `);
   }
   if (marked_opts.renderer.lightYTEmbedImport) {
-    additionalCode += `<script type="module" src="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.3.3/src/lite-yt-embed.js"></script>`;
+    additionalCode += `<script defer src="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.3.3/src/lite-yt-embed.js"></script>`;
     additionalCode += `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.3.3/src/lite-yt-embed.css" />`;
   }
 
