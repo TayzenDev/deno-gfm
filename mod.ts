@@ -67,6 +67,7 @@ export class Renderer extends Marked.Renderer {
   #slugger?: GitHubSlugger;
   mermaidImport: boolean = false;
   lightYTEmbedImport: boolean = false;
+  mermaidEnabled: boolean;
 
   constructor(options: Marked.MarkedOptions & RenderOptions = {}) {
     super(options);
@@ -77,6 +78,7 @@ export class Renderer extends Marked.Renderer {
     if (options.githubSlugger || options.githubSlugger === undefined) {
       this.#slugger = new GitHubSlugger();
     }
+    this.mermaidEnabled = options.mermaid ?? false;
   }
 
   override heading(
@@ -121,7 +123,7 @@ export class Renderer extends Marked.Renderer {
     // a language of `ts, ignore` should really be `ts`
     // and it should be lowercase to ensure it has parity with regular github markdown
     language = language?.split(",")?.[0].toLocaleLowerCase();
-    const isMermaid = language === "mermaid";
+    const isMermaid = this.mermaidEnabled && language === "mermaid";
 
     // transform math code blocks into HTML+MathML
     // https://github.blog/changelog/2022-06-28-fenced-block-syntax-for-mathematical-expressions/
@@ -301,6 +303,7 @@ export interface RenderOptions {
   noLinks?: boolean;
   liteYTEmbed?: boolean;
   githubSlugger?: boolean;
+  mermaid?: boolean;
 }
 
 export function render(markdown: string, opts: RenderOptions = {}): string {
