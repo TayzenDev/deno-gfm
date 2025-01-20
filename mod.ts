@@ -29,7 +29,11 @@ Marked.marked.use({
   },
 });
 
-function youtubeLinkToIframe(youtubeUrl: string, lite: boolean = false, title?: string): string | null {
+function youtubeLinkToIframe(
+  youtubeUrl: string,
+  lite: boolean = false,
+  title?: string,
+): string | null {
   const youtubeRegex =
     /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
   const match = youtubeUrl.match(youtubeRegex);
@@ -42,7 +46,7 @@ function youtubeLinkToIframe(youtubeUrl: string, lite: boolean = false, title?: 
         <a href="https://youtube.com/watch?v=${videoId}" class="lty-playbtn" title="${actualTitle}">
           <span class="lyt-visually-hidden">${actualTitle}</span>
         </a>
-      </lite-youtube>`
+      </lite-youtube>`;
     }
     return `<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/${videoId}" class="youtube-embed" title="${actualTitle}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" allowfullscreen></iframe>
 `;
@@ -60,7 +64,7 @@ export class Renderer extends Marked.Renderer {
   noLinks: boolean;
   liteYTEmbed: boolean = false;
   baseUrl: string | undefined;
-  #slugger: GitHubSlugger;
+  #slugger?: GitHubSlugger;
   mermaidImport: boolean = false;
   lightYTEmbedImport: boolean = false;
 
@@ -70,7 +74,9 @@ export class Renderer extends Marked.Renderer {
     this.allowMath = options.allowMath ?? false;
     this.noLinks = options.noLinks ?? false;
     this.liteYTEmbed = options.liteYTEmbed ?? false;
-    this.#slugger = new GitHubSlugger();
+    if (options.githubSlugger || options.githubSlugger === undefined) {
+      this.#slugger = new GitHubSlugger();
+    }
   }
 
   override heading(
@@ -78,15 +84,19 @@ export class Renderer extends Marked.Renderer {
     level: 1 | 2 | 3 | 4 | 5 | 6,
     raw: string,
   ): string {
-    const slug = this.#slugger.slug(raw);
-    if (this.noLinks) {
-      return `<h${level} id="${slug}">${text}</h${level}>\n`;
+    if (this.noLinks || !this.#slugger) {
+      return `<h${level}>${text}</h${level}>\n`;
     }
+    const slug = this.#slugger.slug(raw);
     return `<h${level} id="${slug}"><a class="anchor" aria-hidden="true" tabindex="-1" href="#${slug}"><svg class="octicon octicon-link" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path></svg></a>${text}</h${level}>\n`;
   }
 
   override image(src: string, title: string | null, alt: string): string {
-    const youtubeIframe = youtubeLinkToIframe(src, this.liteYTEmbed, title || alt);
+    const youtubeIframe = youtubeLinkToIframe(
+      src,
+      this.liteYTEmbed,
+      title || alt,
+    );
     if (youtubeIframe) {
       this.lightYTEmbedImport = this.liteYTEmbed;
       return youtubeIframe;
@@ -217,24 +227,22 @@ export class Renderer extends Marked.Renderer {
 }
 
 function minify(str: string): string {
-  return (
-    str
-      .replace(/>\s+</g, "><")
-      .replace(/<(\w+)(\s*\n\s*|\s{2,})/g, "<$1 ")
-      .replace(/\s*=\s*/g, "=")
-      .replace(/\s*({|}|;|\(|\)|,|:)\s*/g, "$1")
-      .replace(
-        /(<style.*?>)([\s\S]*?)(<\/style>)/g,
-        (_, start, content, end) =>
-          `${start}${content.replace(/^\s+|\s+$/gm, "").replace(/\s*\n\s*/g, " ")}${end}`,
-      )
-      .replace(
-        /(<script.*?>)([\s\S]*?)(<\/script>)/g,
-        (_, start, content, end) =>
-          `${start}${content.replace(/^\s+|\s+$/gm, "").replace(/\s*\n\s*/g, " ")}${end}`,
-      )
-      .trim()
-  );
+  return str
+    .replace(/>\s+</g, "><")
+    .replace(/<(\w+)(\s*\n\s*|\s{2,})/g, "<$1 ")
+    .replace(/\s*=\s*/g, "=")
+    .replace(/\s*({|}|;|\(|\)|,|:)\s*/g, "$1")
+    .replace(
+      /(<style.*?>)([\s\S]*?)(<\/style>)/g,
+      (_, start, content, end) =>
+        `${start}${content.replace(/^\s+|\s+$/gm, "").replace(/\s*\n\s*/g, " ")}${end}`,
+    )
+    .replace(
+      /(<script.*?>)([\s\S]*?)(<\/script>)/g,
+      (_, start, content, end) =>
+        `${start}${content.replace(/^\s+|\s+$/gm, "").replace(/\s*\n\s*/g, " ")}${end}`,
+    )
+    .trim();
 }
 
 const BLOCK_MATH_REGEXP = /\$\$\s(.+?)\s\$\$/g;
@@ -292,6 +300,7 @@ export interface RenderOptions {
   breaks?: boolean;
   noLinks?: boolean;
   liteYTEmbed?: boolean;
+  githubSlugger?: boolean;
 }
 
 export function render(markdown: string, opts: RenderOptions = {}): string {
