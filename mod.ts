@@ -15,7 +15,6 @@ import "prismjs-yaml";
 import { CSS, KATEX_CLASSES, KATEX_CSS } from "./style.ts";
 export { CSS, KATEX_CSS, Marked };
 
-Marked.marked.use(markedAlert());
 Marked.marked.use(gfmHeadingId());
 Marked.marked.use(markedFootnote());
 Marked.marked.use({
@@ -28,6 +27,12 @@ Marked.marked.use({
     }
   },
 });
+
+function isYoutubeVideo(url: string): boolean {
+  const youtubeRegex =
+    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+  return youtubeRegex.test(url);
+}
 
 function youtubeLinkToIframe(
   youtubeUrl: string,
@@ -62,23 +67,25 @@ function isLocalPath(src: string) {
 export class Renderer extends Marked.Renderer {
   allowMath: boolean;
   noLinks: boolean;
-  liteYTEmbed: boolean = false;
+  ytEmbed: YoutubeHandling = "lite";
   baseUrl: string | undefined;
   #slugger?: GitHubSlugger;
   mermaidImport: boolean = false;
   lightYTEmbedImport: boolean = false;
   mermaidEnabled: boolean;
+  alertsEnabled: boolean = true;
 
   constructor(options: Marked.MarkedOptions & RenderOptions = {}) {
     super(options);
     this.baseUrl = options.baseUrl;
     this.allowMath = options.allowMath ?? false;
     this.noLinks = options.noLinks ?? false;
-    this.liteYTEmbed = options.liteYTEmbed ?? false;
+    this.ytEmbed = options.youtubeHandling ?? "lite";
     if (options.githubSlugger || options.githubSlugger === undefined) {
       this.#slugger = new GitHubSlugger();
     }
     this.mermaidEnabled = options.mermaid ?? false;
+    this.alertsEnabled = options.alerts ?? true;
   }
 
   override heading(
@@ -96,12 +103,16 @@ export class Renderer extends Marked.Renderer {
   override image(src: string, title: string | null, alt: string): string {
     const youtubeIframe = youtubeLinkToIframe(
       src,
-      this.liteYTEmbed,
+      this.ytEmbed === "lite",
       title || alt,
     );
     if (youtubeIframe) {
-      this.lightYTEmbedImport = this.liteYTEmbed;
+      this.lightYTEmbedImport = this.ytEmbed === "lite";
       return youtubeIframe;
+    }
+    if (isYoutubeVideo(src) && this.ytEmbed === "link") {
+      // not an iframe but a youtube video
+      return `<a href="${src}" alt="${title ?? ""}">${title ?? "Youtube video"}</a>`;
     }
     if (
       isLocalPath(src) &&
@@ -226,6 +237,42 @@ export class Renderer extends Marked.Renderer {
   override checkbox(checked: boolean): string {
     return `<input ${checked ? "checked " : ""}disabled type="checkbox" style="display: none;">`;
   }
+
+  override blockquote(text: string): string {
+    const alertType = detectAlertType(text);
+    if (!this.alertsEnabled && alertType) {
+      return `<p><b>${alertType}: </b></p>${text.trim().slice(alertType.length + 3)}</p>`;
+    }
+    return super.blockquote(text);
+  }
+}
+
+type AlertType =
+  | "Note"
+  | "Tip"
+  | "Important"
+  | "Warning"
+  | "Caution"
+  | undefined;
+
+function detectAlertType(text: string): AlertType {
+  const trimedText = text.trim();
+  if (trimedText.startsWith("[!NOTE]")) {
+    return "Note";
+  }
+  if (trimedText.startsWith("[!TIP]")) {
+    return "Tip";
+  }
+  if (trimedText.startsWith("[!IMPORTANT]")) {
+    return "Important";
+  }
+  if (trimedText.startsWith("[!WARNING]")) {
+    return "Warning";
+  }
+  if (trimedText.startsWith("[!CAUTION]")) {
+    return "Caution";
+  }
+  return undefined;
 }
 
 function minify(str: string): string {
@@ -288,6 +335,8 @@ function getOpts(opts: RenderOptions) {
   };
 }
 
+export type YoutubeHandling = "lite" | "link" | "embed";
+
 export interface RenderOptions {
   baseUrl?: string;
   mediaBaseUrl?: string;
@@ -301,9 +350,10 @@ export interface RenderOptions {
   allowedAttributes?: Record<string, sanitizeHtml.AllowedAttribute[]>;
   breaks?: boolean;
   noLinks?: boolean;
-  liteYTEmbed?: boolean;
+  youtubeHandling?: YoutubeHandling;
   githubSlugger?: boolean;
   mermaid?: boolean;
+  alerts?: boolean;
 }
 
 export function render(markdown: string, opts: RenderOptions = {}): string {
@@ -313,6 +363,9 @@ export function render(markdown: string, opts: RenderOptions = {}): string {
     markdown = mathify(markdown);
   }
 
+  if (opts.alerts === undefined || opts.alerts) {
+    Marked.marked.use(markedAlert());
+  }
   const marked_opts = getOpts(opts);
 
   const html = (
