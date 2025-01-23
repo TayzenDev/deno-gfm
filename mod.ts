@@ -244,6 +244,7 @@ export class Renderer extends Marked.Renderer {
     console.log("alert type:", alertType);
     if (!this.alertsEnabled && alertType) {
       console.log("alert disabled");
+      console.log("index of alert:", text.indexOf(alertType));
       return `<p><b>${convertAlert(alertType)}: </b></p>${cutStr(text, text.indexOf(alertType), text.indexOf(alertType) + alertType.length)}</p>`;
     }
 
@@ -252,6 +253,8 @@ export class Renderer extends Marked.Renderer {
 }
 
 function cutStr(str: string, i: number, j: number): string {
+  console.log("cut str", i, j);
+  console.log("res:", str.substring(0, i), str.substring(j));
   return str.substring(0, i) + str.substring(j);
 }
 
