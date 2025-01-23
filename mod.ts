@@ -264,13 +264,13 @@ const alerts = [
 ];
 
 function detectAlert(text: string): string | undefined {
-  for (const alert in alerts.values()) {
+  alerts.forEach((alert) => {
     console.log(alert);
     if (text.toLowerCase().includes(alert)) {
       console.log("found alert");
       return alert;
     }
-  }
+  });
   console.log("no alert found");
   return undefined;
 }
