@@ -240,52 +240,41 @@ export class Renderer extends Marked.Renderer {
 
   override blockquote(text: string): string {
     console.log("quote text:", text);
-    const alertType = detectAlertType(text);
+    const alertType = detectAlert(text);
     console.log("alert type:", alertType);
     if (!this.alertsEnabled && alertType) {
       console.log("alert disabled");
-      return `<p><b>${alertType}: </b></p>${text.trim().slice(alertType.length + 3)}</p>`;
+      return `<p><b>${convertAlert(alertType)}: </b></p>${cutStr(text, text.indexOf(alertType), text.indexOf(alertType) + alertType.length)}</p>`;
     }
 
-    // using marked alert rendering function if possible
-    const markedAlertFunction = markedAlert().renderer?.blockquote;
-    console.log("marked alert function:", markedAlertFunction);
-    const functionResult = markedAlertFunction
-      ? markedAlertFunction(text)
-      : null;
-    console.log("function result:", functionResult);
-    return markedAlertFunction
-      ? functionResult || super.blockquote(text)
-      : super.blockquote(text);
+    return super.blockquote(text);
   }
 }
 
-type AlertType =
-  | "Note"
-  | "Tip"
-  | "Important"
-  | "Warning"
-  | "Caution"
-  | undefined;
+function cutStr(str: string, i: number, j: number): string {
+  return str.substring(0, i) + str.substring(j);
+}
 
-function detectAlertType(text: string): AlertType {
-  const trimedText = text.trim();
-  if (trimedText.startsWith("[!NOTE]")) {
-    return "Note";
-  }
-  if (trimedText.startsWith("[!TIP]")) {
-    return "Tip";
-  }
-  if (trimedText.startsWith("[!IMPORTANT]")) {
-    return "Important";
-  }
-  if (trimedText.startsWith("[!WARNING]")) {
-    return "Warning";
-  }
-  if (trimedText.startsWith("[!CAUTION]")) {
-    return "Caution";
+const alerts = [
+  "[!note]",
+  "[!tip]",
+  "[!important]",
+  "[!warning]",
+  "[!caution]",
+];
+
+function detectAlert(text: string): string | undefined {
+  for (const alert in alerts) {
+    if (text.includes(alert)) {
+      return alert;
+    }
   }
   return undefined;
+}
+
+function convertAlert(alert: string): string {
+  const alertText = alert.slice(2, alert.length - 1);
+  return alertText.at(0)?.toUpperCase() + alertText.slice(1);
 }
 
 function minify(str: string): string {
