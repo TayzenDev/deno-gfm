@@ -363,7 +363,9 @@ export function render(markdown: string, opts: RenderOptions = {}): string {
     markdown = mathify(markdown);
   }
 
+  console.log("alerts:", opts.alerts);
   if (opts.alerts === undefined || opts.alerts) {
+    console.log("enabling alerts");
     Marked.marked.use(markedAlert());
   }
   const marked_opts = getOpts(opts);
