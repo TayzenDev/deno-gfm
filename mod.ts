@@ -265,16 +265,19 @@ const alerts = [
 
 function detectAlert(text: string): string | undefined {
   for (const alert in alerts) {
-    if (text.includes(alert)) {
+    console.log(alert);
+    if (text.toLowerCase().includes(alert)) {
+      console.log("found alert");
       return alert;
     }
   }
+  console.log("no alert found");
   return undefined;
 }
 
 function convertAlert(alert: string): string {
   const alertText = alert.slice(2, alert.length - 1);
-  return alertText.at(0)?.toUpperCase() + alertText.slice(1);
+  return alertText.at(0)?.toUpperCase() + alertText.slice(1).toLowerCase();
 }
 
 function minify(str: string): string {
