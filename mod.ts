@@ -239,15 +239,23 @@ export class Renderer extends Marked.Renderer {
   }
 
   override blockquote(text: string): string {
+    console.log("quote text:", text);
     const alertType = detectAlertType(text);
+    console.log("alert type:", alertType);
     if (!this.alertsEnabled && alertType) {
+      console.log("alert disabled");
       return `<p><b>${alertType}: </b></p>${text.trim().slice(alertType.length + 3)}</p>`;
     }
 
     // using marked alert rendering function if possible
     const markedAlertFunction = markedAlert().renderer?.blockquote;
+    console.log("marked alert function:", markedAlertFunction);
+    const functionResult = markedAlertFunction
+      ? markedAlertFunction(text)
+      : null;
+    console.log("function result:", functionResult);
     return markedAlertFunction
-      ? markedAlertFunction(text) || super.blockquote(text)
+      ? functionResult || super.blockquote(text)
       : super.blockquote(text);
   }
 }
