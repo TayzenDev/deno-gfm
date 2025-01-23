@@ -245,7 +245,7 @@ export class Renderer extends Marked.Renderer {
     if (!this.alertsEnabled && alertType) {
       console.log("alert disabled");
       console.log("index of alert:", text.indexOf(alertType));
-      return `<p><b>${convertAlert(alertType)}: </b></p>${cutStr(text, text.indexOf(alertType), text.indexOf(alertType) + alertType.length)}</p>`;
+      return `<p><b>${convertAlert(alertType)}: </b></p>${cutStr(text, text.toLowerCase().indexOf(alertType), text.toLowerCase().indexOf(alertType) + alertType.length)}</p>`;
     }
 
     return super.blockquote(text);
