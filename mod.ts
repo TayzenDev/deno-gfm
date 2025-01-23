@@ -383,7 +383,7 @@ export function render(markdown: string, opts: RenderOptions = {}): string {
   markedWithAlerts.use(markedAlert());
 
   const markedInstance =
-    opts.alerts === false ? markedWithAlerts : markedWithoutAlerts;
+    opts.alerts === false ? markedWithoutAlerts : markedWithAlerts;
   const html = (
     opts.inline
       ? markedInstance.parseInline(markdown, marked_opts)
