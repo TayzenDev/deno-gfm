@@ -378,10 +378,15 @@ export function render(markdown: string, opts: RenderOptions = {}): string {
 
   const marked_opts = getOpts(opts);
 
+  const markedWithAlerts = new Marked.Marked();
+  markedWithAlerts.use(markedAlert());
+
+  const markedInstance =
+    opts.alerts === false ? markedWithAlerts : Marked.marked;
   const html = (
     opts.inline
-      ? Marked.marked.parseInline(markdown, marked_opts)
-      : Marked.marked.parse(markdown, marked_opts)
+      ? markedInstance.parseInline(markdown, marked_opts)
+      : markedInstance.parse(markdown, marked_opts)
   ) as string;
 
   let additionalCode = "";
