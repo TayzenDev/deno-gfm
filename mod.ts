@@ -264,15 +264,15 @@ const alerts = [
 ];
 
 function detectAlert(text: string): string | undefined {
-  alerts.forEach((alert) => {
-    console.log(alert);
-    if (text.toLowerCase().includes(alert)) {
-      console.log("found alert");
-      return alert;
-    }
-  });
-  console.log("no alert found");
-  return undefined;
+  return (
+    alerts.forEach((alert) => {
+      console.log(alert);
+      if (text.toLowerCase().includes(alert)) {
+        console.log("found alert");
+        return alert;
+      }
+    }) ?? undefined
+  );
 }
 
 function convertAlert(alert: string): string {
