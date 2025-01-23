@@ -269,7 +269,7 @@ function detectAlert(text: string): string | undefined {
     console.log(alert);
     if (text.toLowerCase().includes(alert)) {
       console.log("found alert");
-      return alert;
+      result = alert;
     }
   });
   return result;
