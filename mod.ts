@@ -264,7 +264,7 @@ const alerts = [
 ];
 
 function detectAlert(text: string): string | undefined {
-  const result = undefined;
+  let result = undefined;
   alerts.forEach((alert) => {
     console.log(alert);
     if (text.toLowerCase().includes(alert)) {
