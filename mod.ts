@@ -255,7 +255,7 @@ export class Renderer extends Marked.Renderer {
 function cutStr(str: string, i: number, j: number): string {
   console.log("cut str", i, j);
   console.log("res:", str.substring(0, i), str.substring(j));
-  return str.substring(0, i) + str.substring(j);
+  return (str.substring(0, i) + str.substring(j)).trim();
 }
 
 const alerts = [
