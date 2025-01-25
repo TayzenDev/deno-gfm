@@ -15,19 +15,6 @@ import "prismjs-yaml";
 import { CSS, KATEX_CLASSES, KATEX_CSS } from "./style.ts";
 export { CSS, KATEX_CSS, Marked };
 
-Marked.marked.use(gfmHeadingId());
-Marked.marked.use(markedFootnote());
-Marked.marked.use({
-  walkTokens: (token) => {
-    // putting a list inside a summary requires a double line break
-    // but we shouldn't keep that double line break in the output
-    // this doesn't happen in remark/rehype
-    if (token.type === "html" && token.text.endsWith("</summary>\n\n")) {
-      token.text = token.text.replace("</summary>\n\n", "</summary>\n");
-    }
-  },
-});
-
 function isYoutubeVideo(url: string): boolean {
   const youtubeRegex =
     /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
@@ -74,6 +61,7 @@ export class Renderer extends Marked.Renderer {
   lightYTEmbedImport: boolean = false;
   mermaidEnabled: boolean;
   alertsEnabled: boolean = true;
+  svgCheckboxes: boolean = true;
 
   constructor(options: Marked.MarkedOptions & RenderOptions = {}) {
     super(options);
@@ -86,6 +74,7 @@ export class Renderer extends Marked.Renderer {
     }
     this.mermaidEnabled = options.mermaid ?? false;
     this.alertsEnabled = options.alerts ?? true;
+    this.svgCheckboxes = options.svgCheckboxes ?? true;
   }
 
   override heading(
@@ -223,12 +212,18 @@ export class Renderer extends Marked.Renderer {
         <path d="m9 12 2 2 4-4" />
       </svg>`;
 
-    if (task) {
+    if (task && this.svgCheckboxes) {
       const icon = checked ? checkedIcon : uncheckedIcon;
       return (
         minify(
           `<li style="list-style-type: none;"><label>${icon} ${text}</label></li>`,
         ) + "\n"
+      );
+    }
+    if (task) {
+      const icon = checked ? "☑" : "□";
+      return (
+        minify(`<li style="list-style-type: none;">${icon} ${text}</li>`) + "\n"
       );
     }
     return super.listitem(text, task, checked);
@@ -362,6 +357,7 @@ export interface RenderOptions {
   githubSlugger?: boolean;
   mermaid?: boolean;
   alerts?: boolean;
+  svgCheckboxes?: boolean;
 }
 
 export function render(markdown: string, opts: RenderOptions = {}): string {
@@ -379,6 +375,18 @@ export function render(markdown: string, opts: RenderOptions = {}): string {
 
   const markedInstance =
     opts.alerts === false ? markedWithoutAlerts : markedWithAlerts;
+  markedInstance.use(gfmHeadingId());
+  markedInstance.use(markedFootnote());
+  markedInstance.use({
+    walkTokens: (token) => {
+      // putting a list inside a summary requires a double line break
+      // but we shouldn't keep that double line break in the output
+      // this doesn't happen in remark/rehype
+      if (token.type === "html" && token.text.endsWith("</summary>\n\n")) {
+        token.text = token.text.replace("</summary>\n\n", "</summary>\n");
+      }
+    },
+  });
   const html = (
     opts.inline
       ? markedInstance.parseInline(markdown, marked_opts)
