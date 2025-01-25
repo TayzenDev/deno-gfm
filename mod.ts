@@ -216,21 +216,24 @@ export class Renderer extends Marked.Renderer {
       const icon = checked ? checkedIcon : uncheckedIcon;
       return (
         minify(
-          `<li style="list-style-type: none;"><label>${icon} ${text}</label></li>`,
+          `<li style="list-style-type: none;" role="checkbox" aria-checked="${checked}">${icon} ${text}</li>`,
         ) + "\n"
       );
     }
     if (task) {
       const icon = checked ? "☑" : "□";
       return (
-        minify(`<li style="list-style-type: none;">${icon} ${text}</li>`) + "\n"
+        minify(
+          `<li style="list-style-type: none;" role="checkbox" aria-checked="${checked}">${icon} ${text}</li>`,
+        ) + "\n"
       );
     }
     return super.listitem(text, task, checked);
   }
 
   override checkbox(checked: boolean): string {
-    return `<input ${checked ? "checked " : ""}disabled type="checkbox" style="display: none;">`;
+    // TODO: move checkbox rendering here instead of list
+    return "";
   }
 
   override blockquote(text: string): string {
