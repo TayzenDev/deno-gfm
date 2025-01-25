@@ -179,6 +179,17 @@ export class Renderer extends Marked.Renderer {
   }
 
   override listitem(text: string, task: boolean, checked: boolean): string {
+    if (task) {
+      return (
+        minify(
+          `<li style="list-style-type: none;" role="checkbox" aria-checked="${checked}">${text}</li>`,
+        ) + "\n"
+      );
+    }
+    return super.listitem(text, task, checked);
+  }
+
+  override checkbox(checked: boolean): string {
     const uncheckedIcon = `<svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
@@ -212,28 +223,10 @@ export class Renderer extends Marked.Renderer {
         <path d="m9 12 2 2 4-4" />
       </svg>`;
 
-    if (task && this.svgCheckboxes) {
-      const icon = checked ? checkedIcon : uncheckedIcon;
-      return (
-        minify(
-          `<li style="list-style-type: none;" role="checkbox" aria-checked="${checked}">${icon} ${text}</li>`,
-        ) + "\n"
-      );
+    if (this.svgCheckboxes) {
+      return checked ? checkedIcon : uncheckedIcon;
     }
-    if (task) {
-      const icon = checked ? "☑" : "□";
-      return (
-        minify(
-          `<li style="list-style-type: none;" role="checkbox" aria-checked="${checked}">${icon} ${text}</li>`,
-        ) + "\n"
-      );
-    }
-    return super.listitem(text, task, checked);
-  }
-
-  override checkbox(checked: boolean): string {
-    // TODO: move checkbox rendering here instead of list
-    return "";
+    return checked ? "☑" : "□";
   }
 
   override blockquote(text: string): string {
