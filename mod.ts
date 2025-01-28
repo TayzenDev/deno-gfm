@@ -93,7 +93,7 @@ export class Renderer extends Marked.Renderer {
     const youtube = isYoutubeVideo(src);
     if (youtube && this.ytEmbed === "link") {
       // not an iframe but a youtube video
-      return `<a href="${src}" alt="${title ?? ""}">${title ?? "Youtube video"}</a>`;
+      return `<a href="${src}">${title || alt || "Youtube video"}</a>`;
     }
     if (youtube) {
       const youtubeIframe = youtubeLinkToIframe(
