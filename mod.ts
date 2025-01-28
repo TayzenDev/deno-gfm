@@ -90,18 +90,21 @@ export class Renderer extends Marked.Renderer {
   }
 
   override image(src: string, title: string | null, alt: string): string {
-    const youtubeIframe = youtubeLinkToIframe(
-      src,
-      this.ytEmbed === "lite",
-      title || alt,
-    );
-    if (youtubeIframe) {
-      this.lightYTEmbedImport = this.ytEmbed === "lite";
-      return youtubeIframe;
-    }
-    if (isYoutubeVideo(src) && this.ytEmbed === "link") {
+    const youtube = isYoutubeVideo(src);
+    if (youtube && this.ytEmbed === "link") {
       // not an iframe but a youtube video
       return `<a href="${src}" alt="${title ?? ""}">${title ?? "Youtube video"}</a>`;
+    }
+    if (youtube) {
+      const youtubeIframe = youtubeLinkToIframe(
+        src,
+        this.ytEmbed === "lite",
+        title || alt,
+      );
+      if (youtubeIframe) {
+        this.lightYTEmbedImport = this.ytEmbed === "lite";
+        return youtubeIframe;
+      }
     }
     if (
       isLocalPath(src) &&
